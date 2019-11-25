@@ -88,7 +88,7 @@ bintray {
     key = properties.getProperty("bintray.apikey")
     configurations = ['archives']
     // override = true
-    // dryRun = true
+    dryRun = true
     pkg {
         repo = "General"
         name = projectName
