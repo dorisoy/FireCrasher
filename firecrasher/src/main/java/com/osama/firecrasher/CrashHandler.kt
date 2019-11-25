@@ -8,7 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 
-class CrashHandler internal constructor() : Thread.UncaughtExceptionHandler {
+internal class CrashHandler internal constructor() : Thread.UncaughtExceptionHandler {
 
     var activity: Activity? = null
 

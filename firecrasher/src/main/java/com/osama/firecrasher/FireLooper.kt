@@ -5,7 +5,7 @@ import android.os.*
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
-class FireLooper : Runnable {
+internal class FireLooper : Runnable {
 
     @SuppressLint("DiscouragedPrivateApi")
     override fun run() {

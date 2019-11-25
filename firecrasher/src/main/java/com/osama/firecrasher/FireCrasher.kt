@@ -4,13 +4,24 @@ import android.app.Activity
 import android.app.Application
 import android.content.Intent
 
+/**
+ * FireCrasher is responsabile for handling unexpected crashes instead of making your application crash
+ */
 object FireCrasher {
 
+    /**
+     * Number of retries already done
+     */
     var retryCount: Int = 0
         private set
 
     private val crashHandler: CrashHandler by lazy { CrashHandler() }
 
+    /**
+     * Install the CrashHandler for the application
+     * @param application Application
+     * @param crashListener CrashListener
+     */
     fun install(application: Application, crashListener: CrashListener) {
         if (FireLooper.isSafe) return
         crashHandler.setCrashListener(crashListener)
@@ -20,6 +31,10 @@ object FireCrasher {
         Thread.setDefaultUncaughtExceptionHandler(crashHandler)
     }
 
+    /**
+     * Evaluate the strategy level to be applied
+     * @return CrashLevel
+     */
     fun evaluate(): CrashLevel {
         return when {
             retryCount <= 1 ->
@@ -34,6 +49,10 @@ object FireCrasher {
         }
     }
 
+    /**
+     * Evaluate the strategy level to be applied
+     * @param onEvaluate callback to return the result
+     */
     fun evaluateAsync(onEvaluate: ((activity: Activity?, level: CrashLevel) -> Unit)?) {
         when {
             retryCount <= 1 ->
@@ -48,6 +67,11 @@ object FireCrasher {
         }
     }
 
+    /**
+     * Recover the application with specified strategy level to apply
+     * @param level CrashLevel
+     * @param onRecover callback which will be called when the recover strategy has been applied
+     */
     fun recover(level: CrashLevel = evaluate(), onRecover: ((activity: Activity?) -> Unit)?) {
         val activityPair = getActivityPair()
         when (level) {
