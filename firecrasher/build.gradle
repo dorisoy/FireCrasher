@@ -2,29 +2,36 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-ext {
-    bintrayRepo = 'maven'
-    bintrayName = 'fire-crasher'
-
-    publishedGroupId = 'com.osama.firecrasher'
-    libraryName = 'firecrasher'
-    artifact = 'firecrasher'
-
-    libraryDescription = 'a android crash handler'
-
-    siteUrl = 'https://github.com/osama-raddad/FireCrasher'
-    gitUrl = 'https://github.com/osama-raddad/FireCrasher.git'
-
-    libraryVersion = '1.5.12'
-
-    developerId = 'osama-raddad'
-    developerName = 'osama raddad'
-    developerEmail = 'osama.s.raddad@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+    }
 }
+apply plugin: 'com.jfrog.bintray'
+
+def gitHubUsername = "Bandyer"
+def gitHubProjectName = "FireCrasher"
+
+// initialize - do not modify this if your project is on github
+def siteUrl = "https://github.com/${gitHubUsername}/${gitHubProjectName}"
+def gitUrl = siteUrl + '.git'
+def bugTrackerUrl = siteUrl + '/issues/'
+def projectName = gitHubProjectName
+
+// end - do not modify this if your project is on github
+def projectDesc = "This library is a android crash handler."
+def projectGroup = "com.bandyer"
+def projectOrg = "bandyer"
+def projectLicenses = ["Apache-2.0"]
+def projectLicenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+def developerFullName = "Bandyer Srl"
+def projectKeywords = []
+
+group = projectGroup
+version = "1.0.0"
 
 android {
     compileSdkVersion 29
@@ -44,6 +51,32 @@ android {
     // For Kotlin projects
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+}
+
+Properties properties = new Properties()
+if (project.rootProject.file("local.properties").exists()) {
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+}
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
+    // override = true
+    dryRun = true
+    pkg {
+        repo = "General"
+        name = projectName
+        userOrg = projectOrg
+        desc = projectDesc
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        issueTrackerUrl = bugTrackerUrl
+        licenses = projectLicenses
+        labels = projectKeywords
+        publicDownloadNumbers = true
+        publish = true
     }
 }
 
