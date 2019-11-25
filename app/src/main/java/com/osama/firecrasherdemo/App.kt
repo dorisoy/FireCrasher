@@ -1,18 +1,12 @@
 package com.osama.firecrasherdemo
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.Application
-import android.content.DialogInterface
-import android.os.Handler
+import android.app.ProgressDialog
 import android.widget.Toast
 import com.osama.firecrasher.CrashLevel
-
 import com.osama.firecrasher.CrashListener
 import com.osama.firecrasher.FireCrasher
-
-import es.dmoral.toasty.Toasty
-import android.app.ProgressDialog
 
 
 /**
@@ -25,12 +19,12 @@ class App : Application() {
 
             override fun onCrash(throwable: Throwable) {
 
-                evaluate { activity, crashLevel ->
+                FireCrasher.evaluateAsync { activity, crashLevel ->
                     if (FireCrasher.retryCount <= 1 && crashLevel == CrashLevel.LEVEL_ONE) {
                         val pd = ProgressDialog(activity)
                         pd.setMessage("loading")
                         pd.show()
-                        recover {
+                        FireCrasher.recover {
                             Toast.makeText(this@App, "recover", Toast.LENGTH_LONG).show()
                         }
                     } else {
@@ -49,13 +43,13 @@ class App : Application() {
                         builder.setTitle(title)
                         builder.setMessage(throwable.localizedMessage)
                         builder.setPositiveButton(positiveButtonText) { _, _ ->
-                            recover {
+                            FireCrasher.recover {
                                 Toast.makeText(this@App, "recover", Toast.LENGTH_LONG).show()
                             }
                         }
                         if (crashLevel != CrashLevel.LEVEL_THREE)
                             builder.setNegativeButton("Restart The App") { _, _ ->
-                                recover(CrashLevel.LEVEL_THREE) {
+                                FireCrasher.recover(CrashLevel.LEVEL_THREE) {
                                     Toast.makeText(this@App, "recover", Toast.LENGTH_LONG).show()
                                 }
                             }
