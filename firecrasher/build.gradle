@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'org.jetbrains.dokka'
 
@@ -49,6 +50,37 @@ android {
 Properties properties = new Properties()
 if (project.rootProject.file("local.properties").exists()) {
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
+}
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            name projectName
+            description projectDesc
+            packaging 'aar'
+            groupId projectGroup
+            version version
+            url siteUrl
+            licenses {
+                license {
+                    name projectLicenses[0]
+                    url projectLicenseUrl
+                }
+            }
+            developers {
+                developer {
+                    id properties.getProperty("bintray.user")
+                    name developerFullName
+                }
+            }
+            scm {
+                connection gitUrl
+                developerConnection gitUrl
+                url siteUrl
+
+            }
+        }
+    }
 }
 
 bintray {
