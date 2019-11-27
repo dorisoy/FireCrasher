@@ -5,7 +5,7 @@ import android.app.Application
 import android.content.Intent
 
 /**
- * FireCrasher is responsabile for handling unexpected crashes instead of making your application crash
+ * FireCrasher is responsible for handling unexpected crashes instead of making your application crash
  */
 object FireCrasher {
 
