@@ -24,7 +24,7 @@ def developerFullName = "Bandyer Srl"
 def projectKeywords = []
 
 group = projectGroup
-version = "1.0.0"
+version = "1.0.1"
 
 android {
     compileSdkVersion 29
