@@ -79,10 +79,10 @@ object FireCrasher {
             CrashLevel.LEVEL_ONE -> {
                 restartActivity(activityPair)
             }
-            //failure in restarting the activity try to go back
+            //failure in restarting the activity finish the current one
             CrashLevel.LEVEL_TWO -> {
                 retryCount = 0
-                goBack(activityPair)
+                finish(activityPair)
             }
             //no activates to go back to so just restart the app
             CrashLevel.LEVEL_THREE -> {
@@ -124,8 +124,8 @@ object FireCrasher {
         retryCount += 1
     }
 
-    private fun goBack(activityPair: Pair<Activity?, Intent?>) {
-        activityPair.first?.onBackPressed()
+    private fun finish(activityPair: Pair<Activity?, Intent?>) {
+        activityPair.first?.finish()
     }
 
     private fun restartApp(activityPair: Pair<Activity?, Intent?>) {
