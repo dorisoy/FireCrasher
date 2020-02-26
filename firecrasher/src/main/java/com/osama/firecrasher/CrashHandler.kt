@@ -21,7 +21,7 @@ internal class CrashHandler internal constructor() : Thread.UncaughtExceptionHan
     }
 
     override fun uncaughtException(thread: Thread, throwable: Throwable) {
-        Handler(Looper.getMainLooper()).post { crashListener?.onCrash(throwable) }
+        Handler(Looper.getMainLooper()).post { crashListener?.onCrash(thread, throwable) }
     }
 
     fun getBackStackCount(): Int {
