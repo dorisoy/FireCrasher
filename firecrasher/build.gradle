@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
 apply plugin: 'org.jetbrains.dokka'
 
 def gitHubUsername = "Bandyer"
@@ -11,17 +11,14 @@ def gitHubProjectName = "FireCrasher"
 // initialize - do not modify this if your project is on github
 def siteUrl = "https://github.com/${gitHubUsername}/${gitHubProjectName}"
 def gitUrl = siteUrl + '.git'
-def bugTrackerUrl = siteUrl + '/issues/'
 def projectName = gitHubProjectName
 
 // end - do not modify this if your project is on github
 def projectDesc = "This library is a android crash handler."
 def projectGroup = "com.bandyer"
-def projectOrg = "bandyer"
 def projectLicenses = ["Apache-2.0"]
 def projectLicenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
 def developerFullName = "Bandyer Srl"
-def projectKeywords = []
 
 group = projectGroup
 version = "1.0.2"
@@ -69,7 +66,7 @@ install {
             }
             developers {
                 developer {
-                    id properties.getProperty("bintray.user")
+                    id gitHubUsername
                     name developerFullName
                 }
             }
@@ -77,31 +74,50 @@ install {
                 connection gitUrl
                 developerConnection gitUrl
                 url siteUrl
-
             }
         }
     }
 }
 
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
-    // override = true
-    dryRun = true
-    pkg {
-        repo = "General"
-        name = projectName
-        userOrg = projectOrg
-        desc = projectDesc
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        issueTrackerUrl = bugTrackerUrl
-        licenses = projectLicenses
-        labels = projectKeywords
-        publicDownloadNumbers = true
-        publish = true
+afterEvaluate {
+    publishing {
+        repositories {
+            maven {
+                url = "s3://maven-bandyer/releases/"
+                credentials(AwsCredentials) {
+                    accessKey = properties.getProperty("maven.accessKey")
+                    secretKey = properties.getProperty("maven.secretKey")
+                }
+            }
+        }
+
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = projectGroup
+                artifactId = project.getName()
+                version = version
+                artifact kdocJar
+                artifact sourcesJar
+            }
+        }
     }
+}
+
+task invalidateCache(type: Exec) {
+    workingDir '../scripts'
+    def publishPath = "releases"
+    def packageName = projectGroup + "." + project.getName()
+    commandLine 'python', './invalidate_s3_cache.py', properties.getProperty("maven.accessKey"), properties.getProperty("maven.secretKey"), properties.getProperty("maven.distributionId"), publishPath, packageName ,version
+}
+
+task publishUpload {
+    def dryRun = false
+    def publishTask = 'publishToMavenLocal'
+    if(!dryRun) publishTask = 'publish'
+    dependsOn publishTask
+    dependsOn 'invalidateCache'
+    tasks.findByName('invalidateCache').mustRunAfter publishTask
 }
 
 task sourcesJar(type: Jar) {
@@ -157,7 +173,6 @@ task kdocJar(type: Jar, dependsOn: dokkaDoc) {
 
 artifacts {
     archives kdocJar
-    archives jdocJar
     archives sourcesJar
 }
 
